@@ -47,25 +47,31 @@ namespace AlexaPowerTwitter.Dialogs
             {
                 response = await _translateDialog.HandleTranslationPossibilityAsync();
             }
-            else if (_accessor.IntentRequest.Intent.Name == IntentNames.YesIntent)
+            else
             {
-                foreach (FavModel fav in _favList)
+                if (_accessor.IntentRequest.Intent.Name == IntentNames.YesIntent)
                 {
-                    if (!_accessor.Lang.Contains(fav.lang, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        fav.cr825_message = await _translateService.TranslateToLanguage(fav.cr825_message, _accessor.Lang);
-                        fav.lang = _accessor.Lang;
-                    }
+                    await ChangeLanguage();
                 }
-
-                var message = string.Join(",", _favList.Select(fav => fav.ToSSML()));
+                var message = string.Join("<break time=\"2s\"/>", _favList.Select(fav => fav.ToSSML()));
                 message = string.Format(_accessor.LocaleResources.GetValueOrDefault(key: LanguageKeys.Favorites), message);
                 message = $"<speak>{message}</speak>";
 
-                response = ResponseBuilder.Tell(message);
+                response = ResponseBuilder.Tell(new SsmlOutputSpeech() { Ssml = message });
             }
-
             return response;
+        }
+
+        private async Task ChangeLanguage()
+        {
+            foreach (FavModel fav in _favList)
+            {
+                if (!_accessor.Lang.Contains(fav.lang, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    fav.cr825_message = await _translateService.TranslateToLanguage(fav.cr825_message, _accessor.Lang);
+                    fav.lang = _accessor.Lang;
+                }
+            }
         }
     }
 }

@@ -27,7 +27,6 @@ namespace AlexaPowerTwitter
 
             builder.Services.AddScoped<Accessor>();
             builder.Services.AddScoped<FavDialog>();
-
             builder.Services.AddScoped<TranslateDialog>();
             builder.Services.AddScoped<LanguageService>();
         }
